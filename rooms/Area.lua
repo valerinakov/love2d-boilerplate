@@ -8,12 +8,14 @@ end
 function Area:update(dt)
     -- local count = self.world:countItems()
     -- print('amount ' .. count)
-    -- print('test ' .. #self.game_objects)
+    -- print('game object' .. #self.game_objects)
     for i = #self.game_objects, 1, -1 do
         local game_object = self.game_objects[i]
         game_object:update(dt)
         if game_object.dead then 
-            self.world:remove(game_object)
+            if self.world and self.world:hasItem(game_object) then
+                self.world:remove(game_object)
+            end
             game_object:destroy()
             table.remove(self.game_objects, i) end
         end
@@ -36,8 +38,8 @@ function Area:addCollision(object)
     self.world:add(object, object.x, object.y, object.w or 10, object.h or 10)
 end
 
-function Area:move(object)
-    local actualX, actualY, cols, len = self.world:move(object, object.x,object.y) 
+function Area:move(object, filter)
+    local actualX, actualY, cols, len = self.world:move(object, object.x,object.y, filter) 
     if actualX ~= object.x then
         object.x = actualX
     end
@@ -45,13 +47,16 @@ function Area:move(object)
     if actualY ~= object.y then
         object.y = actualY
     end
-    -- print(len)
+
+    return actualX, actualY, cols, len
 end
 
 function Area:destroy()
     for i = #self.game_objects, 1, -1 do
         local game_object = self.game_objects[i]
-        self.world:remove(game_object)
+        if self.world and self.world:hasItem(game_object) then
+            self.world:remove(game_object)
+        end
         game_object:destroy()
         table.remove(self.game_objects, i)
     end
@@ -87,7 +92,7 @@ function Area:queryCircleArea(x,y,radius,objects)
 end
 
 function Area:getClosestGameObject(x,y,radius,objects)
-    local objectsInCircle = self.queryCircleArea(x,y,radius,objects)
+    local objectsInCircle = self:queryCircleArea(x,y,radius,objects)
     local closestIndex = 0
     local closestDistance = radius*5
     for i,v in ipairs(objectsInCircle) do
@@ -97,7 +102,7 @@ function Area:getClosestGameObject(x,y,radius,objects)
             closestIndex = i
         end
     end
-    return objectsInCircle[i]
+    return objectsInCircle[closestIndex]
 end
 
 function Area:getGameObjects(func)
@@ -108,14 +113,4 @@ function Area:getGameObjects(func)
         end
     end
     return specific_game_objects
-end
-
-function Area:getAllGameObjectsThat(filter)
-    local out = {}
-    for _, game_object in pairs(self.game_objects) do
-        if filter(game_object) then
-            table.insert(out, game_object)
-        end
-    end
-    return out
 end

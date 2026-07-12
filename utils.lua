@@ -19,6 +19,7 @@ function random(n1, n2)
     end
 end
 
+-- Given any number of args, store in table and print individually
 function printAll(...)
     local arg = {...}
     for _,v in pairs(arg) do
@@ -26,6 +27,7 @@ function printAll(...)
     end
 end
 
+-- Given any number of args, store in table and print as one string
 function printText(...)
     local arg = {...}
     local string = ''
@@ -36,6 +38,7 @@ function printText(...)
     return string
 end
 
+-- Given pivot points x,y and rotation degree r, rotate r around x,y
 function pushRotate(x,y,r)
     love.graphics.push()
     love.graphics.translate(x,y)
@@ -43,6 +46,7 @@ function pushRotate(x,y,r)
     love.graphics.translate(-x,-y)
 end
 
+-- Given pivot points x,y rotation degree r and scalar values sx,sy, rotate r around x,y and scale
 function pushRotateScale(x,y,r,sx,sy)
     love.graphics.push()
     love.graphics.translate(x,y)
@@ -62,21 +66,16 @@ function table.merge(t1,t2)
     return new_table
 end
 
+-- Given a table t, recursively iterate and print key names
 function printKeys(t, indent)
-    indent = indent or ""
+    local indent = indent or ""
 
     for key, value in pairs(t) do
         print(indent .. tostring(key))
 
-        -- if key == "area" then
-        --     print('test')
-        --     printKeys(value, indent .. "  ") -- Recursive call with increased indent
-        -- end
-
-        -- if key == "game_objects" then
-        --     print('test 2')
-        --     printKeys(value, indent .. "  ") -- Recursive call with increased indent
-        -- end
+        if type(value) == "table" then
+            printKeys(value, indent .. "  ")
+        end
     end
 end
 
@@ -94,6 +93,13 @@ function createIrregularPolygon(size, point_amount)
     return points
 end
 
+-- Given tables containing {value, weight} pairs, produce random value (given weight probability) by calling :next()
+-- example: 
+--   chance_definitions = {
+--     {"slime", 5},
+--     {"goblin", 3},
+--     {"dragon", 1}
+--   }
 function chanceList(...)
     return {
         chance_list = {},

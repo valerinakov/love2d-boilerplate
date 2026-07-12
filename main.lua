@@ -81,7 +81,6 @@ function love.update(dt)
 end
 
 function love.draw()
-
 	if current_room then current_room:draw() end
 
 	if flash_frames then
@@ -89,7 +88,7 @@ function love.draw()
 		if flash_frames == -1 then flash_frames = nil end
 	end
 	if flash_frames then
-		love.graphics.setColor(love.math.colorFromBytes(background_color))
+		love.graphics.setColor(love.math.colorFromBytes(0,0,0))
 		love.graphics.rectangle('fill', 0, 0, sx*gw, sy*gh)
 		love.graphics.setColor(love.math.colorFromBytes(255,255,255))
 	end
@@ -100,7 +99,6 @@ end
  -- next it iterates over that table and gets full path name by concatenaing with folder
  -- then we check if the full path is file or dir, if its file add to table passed as argument
  -- if its dir call recursiveEnumerate with dir as first arg
-
 function recursiveEnumerate(folder, file_list)
 	local items = love.filesystem.getDirectoryItems(folder)
 	for _, item in ipairs(items) do
@@ -119,7 +117,6 @@ end
 
 -- used to iterate over a table of file paths and require them
 -- file:sub(1,-5) is used to remove .lua from end of path
-
 function requireFiles(files)
 	for _, file in ipairs(files) do
 		local file = file:sub(1, -5)
@@ -147,18 +144,21 @@ function addRoom(room_type, room_name, ...)
 	rooms[room_name] = room
 	return room
 end
--- Used to change rooms
+
+-- Given room_type, go to that room
 function gotoRoom(room_type, ...)
 	if current_room and current_room.destroy then current_room:destroy() end
     current_room = _G[room_type](...)
 end
 
--- it will scale size
+-- Given scalar s, rescale window
 function resize(s)
 	love.window.setMode(s*gw, s*gh)
 	sx,sy = s,s 
 end
 
+
+-- Given a function, applies it to every reachable table and userdata in _G.
 function count_all(f)
     local seen = {}
     local count_table
@@ -177,6 +177,7 @@ function count_all(f)
     count_table(_G)
 end
 
+-- Counts reachable tables and userdata by their custom type name.
 function type_count()
     local counts = {}
     local enumerate = function (o)

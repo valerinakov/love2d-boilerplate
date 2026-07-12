@@ -5,11 +5,12 @@ function GameObject:new(area,x,y,opts)
     if opts then for k,v in pairs(opts) do self[k] = v end end
     self.area = area
     self.x, self.y = x, y
-    self.depth = 50
-    self.id = UUID()
+    self.depth = self.depth or 50
+    self.id = self.id or UUID()
     self.dead = false
     self.timer = Timer()
     self.creation_time = os.time()
+
 end
 
 function GameObject:update(dt)
@@ -20,5 +21,8 @@ function GameObject:draw()
 end
 
 function GameObject:destroy()
-    self.timer:destroy()
+    if self.timer then
+        self.timer:destroy()
+        self.timer = nil
+    end
 end
